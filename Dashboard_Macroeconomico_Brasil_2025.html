@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel Macroeconômico · Brasil 2025–2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Barlow+Condensed:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --verde:#004B23;--verde2:#006B33;--verde3:#009c3b;--verde4:#1DB954;
+  --amarelo:#FFDF00;--amarelo2:#FFB800;--amarelo3:#CC9900;
+  --azul:#002776;--azul2:#0038A8;--azul3:#1A56DB;--azul4:#4A90D9;
+  --bg:#0A1F0D;--bg2:#0D2810;--bg3:#102E14;
+  --card:#0F2812;--card2:#142E17;--card3:#19361C;
+  --bdr:rgba(0,155,59,.18);--bdr2:rgba(0,155,59,.32);--bdr3:rgba(255,223,0,.15);
+  --txt:#E8F5EA;--txt2:#A8C9AD;--txt3:#6B9472;--txt4:#3D6142;
+  --rule:rgba(0,155,59,.15);
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg);color:var(--txt);
+  min-height:100vh;font-size:13px;
+}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:var(--verde3);border-radius:2px}
+
+/* GRID TEXTURE */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(0,155,59,.025) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(0,155,59,.025) 1px,transparent 1px);
+  background-size:44px 44px;pointer-events:none;z-index:0;
+}
+
+/* ─── HEADER ─── */
+.hdr{
+  position:relative;z-index:1;overflow:hidden;
+  background:linear-gradient(135deg,var(--bg) 0%,var(--bg2) 40%,rgba(0,75,35,.95) 100%);
+  border-bottom:1px solid var(--bdr2);
+}
+/* Losango decorativo fundo */
+.hdr::before{
+  content:'';position:absolute;
+  width:600px;height:600px;
+  background:rgba(255,223,0,.03);
+  clip-path:polygon(50% 5%,95% 50%,50% 95%,5% 50%);
+  right:-100px;top:-100px;pointer-events:none;
+  animation:rot 30s linear infinite;
+}
+@keyframes rot{to{transform:rotate(360deg)}}
+.hdr::after{
+  content:'';position:absolute;
+  width:400px;height:400px;
+  background:rgba(0,38,118,.12);
+  border-radius:50%;
+  left:-80px;bottom:-80px;pointer-events:none;
+}
+.hdr-in{
+  max-width:1300px;margin:0 auto;padding:44px 48px 40px;
+  display:grid;grid-template-columns:1fr auto;gap:40px;align-items:start;
+  position:relative;z-index:1;
+}
+.hdr-top{display:flex;align-items:center;gap:16px;margin-bottom:16px}
+.hdr-flag{flex-shrink:0}
+.hdr-badge{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--verde4);background:rgba(0,155,59,.12);
+  border:1px solid var(--bdr2);border-radius:2px;padding:4px 12px;
+}
+.hdr-title{
+  font-family:'Syne',sans-serif;
+  font-size:48px;font-weight:800;line-height:1.0;
+  letter-spacing:-.025em;margin-bottom:8px;
+}
+.hdr-title .br1{color:var(--verde4)}
+.hdr-title .br2{color:var(--amarelo)}
+.hdr-title .br3{color:var(--azul4)}
+.hdr-desc{font-size:13px;font-weight:300;color:var(--txt3);line-height:1.7;max-width:480px;margin-bottom:16px}
+.hdr-srcs{display:flex;flex-wrap:wrap;gap:6px}
+.hsrc{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 10px;border:1px solid var(--bdr);
+  color:var(--txt3);border-radius:2px;
+}
+
+/* KPI header */
+.hdr-kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;align-content:start}
+.hk{
+  background:rgba(0,155,59,.08);
+  border:1px solid var(--bdr);
+  padding:16px 18px;
+}
+.hk-n{
+  font-family:'Syne',sans-serif;font-size:26px;font-weight:800;
+  line-height:1;margin-bottom:3px;
+}
+.hk.verde .hk-n{color:var(--verde4)}
+.hk.amarelo .hk-n{color:var(--amarelo)}
+.hk.azul .hk-n{color:var(--azul4)}
+.hk.branco .hk-n{color:var(--txt)}
+.hk-l{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--txt4)}
+
+/* TICKER */
+.ticker{
+  background:var(--verde2);
+  border-top:2px solid var(--amarelo);border-bottom:1px solid var(--bdr2);
+  padding:9px 0;
+  display:flex;justify-content:center;align-items:center;
+  gap:0;overflow-x:auto;position:relative;z-index:1;
+}
+.tk-item{
+  display:flex;align-items:center;gap:8px;
+  padding:0 24px 0 0;margin:0 24px 0 0;
+  border-right:1px solid rgba(255,255,255,.15);
+  white-space:nowrap;flex-shrink:0;
+}
+.tk-item:last-child{border-right:none}
+.tk-lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.5)}
+.tk-v{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:#fff}
+.tk-v.up{color:var(--amarelo)}.tk-v.dn{color:#FF6B6B}
+
+/* NAV */
+.nav{
+  background:var(--bg2);border-bottom:1px solid var(--bdr2);
+  position:sticky;top:0;z-index:20;
+}
+.nav-in{max-width:1300px;margin:0 auto;padding:0 48px;display:flex;overflow-x:auto}
+.nb{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--txt4);padding:14px 18px;cursor:pointer;
+  border-bottom:2px solid transparent;transition:color .15s,border-color .15s;
+  background:none;border-top:none;border-left:none;border-right:none;white-space:nowrap;
+}
+.nb:hover{color:var(--txt2)}
+.nb.active{color:var(--amarelo);border-bottom-color:var(--amarelo)}
+
+/* MAIN */
+.main{max-width:1300px;margin:0 auto;padding:38px 48px 60px;position:relative;z-index:1}
+.sec{display:none}.sec.active{display:block}
+
+/* SECTION HDR */
+.sh{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:28px;padding-bottom:12px;
+  border-bottom:1px solid var(--bdr2);
+}
+.sh-stripe{width:4px;height:32px;background:var(--amarelo);border-radius:2px;flex-shrink:0}
+.sh-h{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--txt);letter-spacing:-.01em}
+.sh-t{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txt4);margin-left:auto}
+
+/* GRID via GAP wrapper */
+.gw{display:grid;gap:2px;margin-bottom:2px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:1fr 1fr 1fr}
+.g4{grid-template-columns:1fr 1fr 1fr 1fr}
+
+/* CARD */
+.card{
+  background:var(--card);border:1px solid var(--bdr);
+  padding:22px 24px;
+  transition:border-color .2s;
+}
+.card:hover{border-color:var(--bdr2)}
+
+/* BLOCK TITLE */
+.bt{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--txt4);margin-bottom:14px;padding-bottom:10px;
+  border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;
+  align-items:center;
+}
+.bt-src{font-size:9px;font-weight:500;letter-spacing:.04em;color:var(--txt4);opacity:.6}
+
+/* STAT BLOCK */
+.sblk{
+  border-left:3px solid var(--verde3);
+  padding-left:14px;margin-bottom:18px;
+}
+.sblk:last-child{margin-bottom:0}
+.sblk.y{border-left-color:var(--amarelo)}
+.sblk.b{border-left-color:var(--azul3)}
+.sblk.r{border-left-color:#FF4444}
+.sblk-n{
+  font-family:'Syne',sans-serif;
+  font-size:36px;font-weight:800;line-height:1;
+  margin-bottom:4px;color:var(--verde4);
+}
+.sblk.y .sblk-n{color:var(--amarelo)}
+.sblk.b .sblk-n{color:var(--azul4)}
+.sblk.r .sblk-n{color:#FF6B6B}
+.sblk-l{font-size:11px;font-weight:600;color:var(--txt2);margin-bottom:3px}
+.sblk-s{font-size:11px;color:var(--txt3);line-height:1.55}
+.chip{
+  display:inline-block;font-family:'Barlow Condensed',sans-serif;
+  font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:2px 8px;border-radius:2px;margin-top:7px;
+}
+.cg{background:rgba(0,155,59,.2);color:var(--verde4);border:1px solid rgba(0,155,59,.3)}
+.cy{background:rgba(255,184,0,.15);color:var(--amarelo2);border:1px solid rgba(255,184,0,.25)}
+.cb{background:rgba(26,86,219,.2);color:var(--azul4);border:1px solid rgba(26,86,219,.3)}
+.cr{background:rgba(255,68,68,.15);color:#FF6B6B;border:1px solid rgba(255,68,68,.25)}
+
+/* TABLE */
+.tb{width:100%;border-collapse:collapse}
+.tb th{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--txt4);padding:9px 10px;
+  border-bottom:1px solid var(--bdr2);text-align:left;
+}
+.tb td{padding:9px 10px;border-bottom:1px solid var(--bdr);font-size:12px;color:var(--txt2);vertical-align:middle}
+.tb tr:last-child td{border-bottom:none}
+.tb tr:hover td{background:var(--card2)}
+.td-yr{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--txt)}
+.td-up{color:var(--verde4);font-weight:600}
+.td-dn{color:#FF6B6B;font-weight:600}
+.td-n{color:var(--txt2);font-weight:600}
+
+/* ANNOTATION */
+.ann{
+  background:rgba(255,223,0,.07);border:1px solid rgba(255,223,0,.18);
+  border-left:3px solid var(--amarelo);
+  padding:14px 18px;margin-bottom:2px;
+  font-size:12px;line-height:1.7;color:var(--txt2);
+  display:flex;gap:12px;
+}
+.ann-i{font-size:16px;flex-shrink:0}
+.ann strong{color:var(--amarelo)}
+
+/* LIST ROW */
+.lrow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bdr)}
+.lrow:last-child{border-bottom:none}
+.lr-main{font-size:12px;font-weight:500;color:var(--txt2)}
+.lr-sub{font-size:10px;color:var(--txt4);margin-top:2px}
+.lr-v{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+
+/* CHART */
+.cw{position:relative;width:100%}
+.fn{font-size:9px;font-weight:500;letter-spacing:.04em;color:var(--txt4);margin-top:8px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em}
+
+/* FOOTER */
+.footer{
+  background:var(--verde);border-top:2px solid var(--amarelo2);
+  padding:16px 48px;
+  display:flex;justify-content:space-between;align-items:center;
+  position:relative;z-index:1;
+}
+.footer-l{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--amarelo)}
+.footer-r{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+
+@media(max-width:1024px){
+  .hdr-in,.nav-in,.main,.ticker,.footer{padding-left:20px;padding-right:20px}
+  .hdr-in{grid-template-columns:1fr}
+  .hdr-kpis{grid-template-columns:repeat(4,auto)}
+  .g2,.g3,.g4{grid-template-columns:1fr 1fr}
+  .hdr-title{font-size:34px}
+}
+@media(max-width:600px){.g2,.g3,.g4{grid-template-columns:1fr}.hdr-kpis{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-in">
+    <div>
+      <div class="hdr-top">
+        <div class="hdr-flag"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEBLAEsAAD/4QESRXhpZgAASUkqAAgAAAAEAA4BAgC1AAAAPgAAAJiCAgAHAAAA8wAAABoBBQABAAAA+gAAABsBBQABAAAAAgEAAAAAAABCcmF6aWwgZmxhZyBvdmVyIGdyZWVuIGJhY2tncm91bmQgdmVjdG9yIGlsbHVzdHJhdGlvbi4gQnJhemlsIGZsYWcgY291bnRyeSBzeW1ib2wgYW5kIGJyYXppbCBmbGFnIG5hdGlvbmFsIGJhY2tncm91bmQgZGVzaWduLiBCcmF6aWwgZmxhZyB0ZXh0dXJlIHN0YXRlLiBCcmF6aWwgZmxhZyBwYXRyaW90aXNtIGljb24uYWRla3ZhdCwBAAABAAAALAEAAAEAAAD/4QZCaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49Iu+7vyIgaWQ9Ilc1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCI/Pgo8eDp4bXBtZXRhIHhtbG5zOng9ImFkb2JlOm5zOm1ldGEvIj4KCTxyZGY6UkRGIHhtbG5zOnJkZj0iaHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyI+CgkJPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczpJcHRjNHhtcENvcmU9Imh0dHA6Ly9pcHRjLm9yZy9zdGQvSXB0YzR4bXBDb3JlLzEuMC94bWxucy8iICAgeG1sbnM6R2V0dHlJbWFnZXNHSUZUPSJodHRwOi8veG1wLmdldHR5aW1hZ2VzLmNvbS9naWZ0LzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGx1cz0iaHR0cDovL25zLnVzZXBsdXMub3JnL2xkZi94bXAvMS4wLyIgIHhtbG5zOmlwdGNFeHQ9Imh0dHA6Ly9pcHRjLm9yZy9zdGQvSXB0YzR4bXBFeHQvMjAwOC0wMi0yOS8iIHhtbG5zOnhtcFJpZ2h0cz0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3JpZ2h0cy8iIGRjOlJpZ2h0cz0iYWRla3ZhdCIgcGhvdG9zaG9wOkNyZWRpdD0iR2V0dHkgSW1hZ2VzL2lTdG9ja3Bob3RvIiBHZXR0eUltYWdlc0dJRlQ6QXNzZXRJRD0iNTMwODEwNTcyIiB4bXBSaWdodHM6V2ViU3RhdGVtZW50PSJodHRwczovL3d3dy5pc3RvY2twaG90by5jb20vbGVnYWwvbGljZW5zZS1hZ3JlZW1lbnQ/dXRtX21lZGl1bT1vcmdhbmljJmFtcDt1dG1fc291cmNlPWdvb2dsZSZhbXA7dXRtX2NhbXBhaWduPWlwdGN1cmwiIHBsdXM6RGF0YU1pbmluZz0iaHR0cDovL25zLnVzZXBsdXMub3JnL2xkZi92b2NhYi9ETUktUFJPSElCSVRFRC1FWENFUFRTRUFSQ0hFTkdJTkVJTkRFWElORyIgPgo8ZGM6Y3JlYXRvcj48cmRmOlNlcT48cmRmOmxpPmFkZWt2YXQ8L3JkZjpsaT48L3JkZjpTZXE+PC9kYzpjcmVhdG9yPjxkYzpkZXNjcmlwdGlvbj48cmRmOkFsdD48cmRmOmxpIHhtbDpsYW5nPSJ4LWRlZmF1bHQiPkJyYXppbCBmbGFnIG92ZXIgZ3JlZW4gYmFja2dyb3VuZCB2ZWN0b3IgaWxsdXN0cmF0aW9uLiBCcmF6aWwgZmxhZyBjb3VudHJ5IHN5bWJvbCBhbmQgYnJhemlsIGZsYWcgbmF0aW9uYWwgYmFja2dyb3VuZCBkZXNpZ24uIEJyYXppbCBmbGFnIHRleHR1cmUgc3RhdGUuIEJyYXppbCBmbGFnIHBhdHJpb3Rpc20gaWNvbi48L3JkZjpsaT48L3JkZjpBbHQ+PC9kYzpkZXNjcmlwdGlvbj4KPHBsdXM6TGljZW5zb3I+PHJkZjpTZXE+PHJkZjpsaSByZGY6cGFyc2VUeXBlPSdSZXNvdXJjZSc+PHBsdXM6TGljZW5zb3JVUkw+aHR0cHM6Ly93d3cuaXN0b2NrcGhvdG8uY29tL3Bob3RvL2xpY2Vuc2UtZ201MzA4MTA1NzItP3V0bV9tZWRpdW09b3JnYW5pYyZhbXA7dXRtX3NvdXJjZT1nb29nbGUmYW1wO3V0bV9jYW1wYWlnbj1pcHRjdXJsPC9wbHVzOkxpY2Vuc29yVVJMPjwv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4RP86bb6sndBrf7hK6juLMt3mYvvC3AjolLJlokN9GJX7pUZZtkjtpZicSEYz+Xa29Rkfpqb/fI9WhmLN3ob00wwQakslPjSQvXS/wDBLjo0kbU0sxwNCMB+B1W1WSDczP8ACIgfIzHtGKqX1DzT4gQFJZMfmkudbQu2X8M4hCw1Oz6dsWIAIR/hWSow/SyAB8zM+0/ik0D5ER/Qy7UCAE77d2AAAACAf9T/AP/EACwQAQABAgUCBgIDAQEBAAAAAAERACExQVFhcTChQFCBkbHBIPBg0eEQgPH/2gAIAQEAAT8Ql1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1al1f/AAbLbmMA1XKg4ALIE2MzvtQiSfwlQJWKuBVwj2zI3aLnWWbdc3/j6BLwLuz7O9Te5OYNRz/g4FqyMA1XIpxYbjF/Yzd3tWP4KWrJydRyasxd21vczNyhEkZ/gawS1dytxFnZ9veh5c2MVqub+YxhSC0XbX9zJ3O9PyrJzNRzP4DgN2+R0N6Shm5+uXdpZ6UFOQ4K1HKriQvEs7Ps7UM4efQEzZF+DPnDmoCS4l11XPqjFKSzdwf3u3zWOVb9Lm/neDCYpWtSZDfm1dufA2zBgWXUalRx1+DLnDzl8LVDHhn8VYwXUcr9YeE1FBVuLV24rDQCoTzVK4wKVqzPFCzyM+MOasAAAWAy6cdO9ENJxv1hTyd6wWOGT28zlhhYDb01auclnv6DY6GET5A9WkEdtHzkHtNWcTVV2ogwVyHui96esuX4UAyeu/3WMTj8JqAIubK7j4pUNkI9mI70yKmd30L6UiY/mgoBEhEkSrK8ZTC5ZcYcU+FIBCeXo2aASrsVDinES3qPgoEQEAIA/PEr48HBq7FOYIwhvz/Z7VpAlkOBgenRQcSawh+cwNsR8bUkCTOxex2O1JGP5x6EItv7DZrGpMBu50f2/lsGgWP2i7FYvIjEuNDboQxIsL6j+seMag7eDAdBl1UEhKta9ic+tk2f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" style="width:72px;height:50px;border-radius:4px;box-shadow:0 3px 12px rgba(0,0,0,.5);flex-shrink:0;object-fit:cover" alt="Bandeira do Brasil"></div>
+        <div class="hdr-badge">Painel Macroeconômico Oficial · Brasil 2025–2026</div>
+      </div>
+      <div class="hdr-title">
+        <span class="br1">Economia</span><br>
+        <span class="br2">Brasileira</span><br>
+        <span class="br3">em Números</span>
+      </div>
+      <div class="hdr-desc">PIB, IPCA, Selic, Desemprego, Dólar e Euro. Dados atualizados das fontes oficiais brasileiras — IBGE, Banco Central, IPEA.</div>
+      <div class="hdr-srcs">
+        <span class="hsrc">IBGE</span><span class="hsrc">Banco Central</span>
+        <span class="hsrc">IPEA / Carta de Conjuntura</span>
+        <span class="hsrc">BCB / SGS</span><span class="hsrc">Exchange-Rates.org</span>
+        <span class="hsrc">Agência Brasil</span>
+      </div>
+    </div>
+    <div class="hdr-kpis">
+      <div class="hk verde"><div class="hk-n">2,3%</div><div class="hk-l">PIB 2025 · IBGE</div></div>
+      <div class="hk amarelo"><div class="hk-n">4,26%</div><div class="hk-l">IPCA 2025 · IBGE</div></div>
+      <div class="hk azul"><div class="hk-n">14,75%</div><div class="hk-l">Selic · mar/2026</div></div>
+      <div class="hk branco"><div class="hk-n">5,6%</div><div class="hk-l">Desemprego 2025</div></div>
+      <div class="hk verde"><div class="hk-n">R$4,99</div><div class="hk-l">Dólar · abr/2026</div></div>
+      <div class="hk amarelo"><div class="hk-n">R$12,7T</div><div class="hk-l">PIB nominal 2025</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="ticker">
+  <div class="tk-item"><span class="tk-lbl">PIB 2025</span><span class="tk-v up">+2,3%</span></div>
+  <div class="tk-item"><span class="tk-lbl">IPCA mar/26</span><span class="tk-v">0,88%</span></div>
+  <div class="tk-item"><span class="tk-lbl">Selic</span><span class="tk-v up">14,75%</span></div>
+  <div class="tk-item"><span class="tk-lbl">Desemprego 2025</span><span class="tk-v up">5,6%</span></div>
+  <div class="tk-item"><span class="tk-lbl">Dólar abr/26</span><span class="tk-v up">R$4,99</span></div>
+  <div class="tk-item"><span class="tk-lbl">IPCA 12m</span><span class="tk-v">4,14%</span></div>
+  <div class="tk-item"><span class="tk-lbl">PIB nominal</span><span class="tk-v up">R$12,7T</span></div>
+</div>
+
+<div class="nav">
+  <div class="nav-in">
+    <button class="nb active" onclick="go('pib',this)">📈 PIB</button>
+    <button class="nb" onclick="go('inflacao',this)">🔥 IPCA · Inflação</button>
+    <button class="nb" onclick="go('selic',this)">🏦 Selic · Juros</button>
+    <button class="nb" onclick="go('emprego',this)">👷 Desemprego</button>
+    <button class="nb" onclick="go('cambio',this)">💵 Câmbio · Dólar · Euro</button>
+    <button class="nb" onclick="go('painel',this)">📊 Painel Completo</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ══ PIB ══ -->
+<div id="sec-pib" class="sec active">
+  <div class="sh"><div class="sh-stripe"></div><div class="sh-h">Produto Interno Bruto</div><div class="sh-t">IBGE · Contas Nacionais · mar/2026</div></div>
+
+  <div class="gw g4" style="margin-bottom:2px">
+    <div class="card"><div class="sblk b"><div class="sblk-n">R$12,7T</div><div class="sblk-l">PIB nominal 2025</div><div class="sblk-s">Maior valor nominal da história. Em 2024: R$11,7T. Crescimento em valores correntes impulsionado por serviços e agro.</div><div class="chip cb">IBGE mar/2026</div></div></div>
+    <div class="card"><div class="sblk"><div class="sblk-n">+2,3%</div><div class="sblk-l">Crescimento real 2025</div><div class="sblk-s">Quatro anos seguidos de crescimento. 2024: +3,4% (maior desde 2021). 2023: +3,2%. Agro puxou com +11,7% em 2025.</div><div class="chip cg">IBGE confirmado</div></div></div>
+    <div class="card"><div class="sblk y"><div class="sblk-n">R$55.247</div><div class="sblk-l">PIB per capita 2024</div><div class="sblk-s">+3,0% real vs 2023. Maior valor já registrado. 2025 ainda pendente de publicação definitiva pelo IBGE.</div><div class="chip cy">IBGE 2024</div></div></div>
+    <div class="card"><div class="sblk r"><div class="sblk-n">+1,8%</div><div class="sblk-l">Projeção PIB 2026</div><div class="sblk-s">IPEA: 1,8%. Banco Central: 1,6%. Fazenda: 2,3%. Desaceleração esperada com Selic alta e câmbio mais forte.</div><div class="chip cy">IPEA abr/2026</div></div></div>
+  </div>
+
+  <div class="gw g2" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">Variação real do PIB por ano (%) · 2015–2025<span class="bt-src">IBGE Contas Nacionais</span></div>
+      <div class="cw" style="height:230px"><canvas id="ch-pib-var"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="bt">PIB nominal (R$ trilhões) · 2015–2025<span class="bt-src">IBGE · valores correntes</span></div>
+      <div class="cw" style="height:230px"><canvas id="ch-pib-nom"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gw g3" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">Setores 2024 vs 2023<span class="bt-src">IBGE 4º Tri/2024</span></div>
+      <div class="lrow"><div><div class="lr-main">Consumo das famílias</div><div class="lr-sub">62% do PIB · maior motor</div></div><span class="lr-v" style="color:var(--verde4)">+4,8%</span></div>
+      <div class="lrow"><div><div class="lr-main">Investimento (FBCF)</div><div class="lr-sub">Taxa: 17,0% do PIB</div></div><span class="lr-v" style="color:var(--verde4)">+7,3%</span></div>
+      <div class="lrow"><div><div class="lr-main">Serviços</div><div class="lr-sub">Outros serviços +5,3%</div></div><span class="lr-v" style="color:var(--verde4)">+3,7%</span></div>
+      <div class="lrow"><div><div class="lr-main">Indústria</div><div class="lr-sub">Construção +4,3%; Transformação +3,8%</div></div><span class="lr-v" style="color:var(--verde4)">+3,3%</span></div>
+      <div class="lrow"><div><div class="lr-main">Agropecuária</div><div class="lr-sub">Clima adverso; soja -4,6%</div></div><span class="lr-v" style="color:#FF6B6B">-3,2%</span></div>
+    </div>
+    <div class="card">
+      <div class="bt">Setores 2025 vs 2024<span class="bt-src">IBGE mar/2026</span></div>
+      <div class="lrow"><div><div class="lr-main">Agropecuária</div><div class="lr-sub">Supersafra; soja, cana, grãos</div></div><span class="lr-v" style="color:var(--verde4)">+11,7%</span></div>
+      <div class="lrow"><div><div class="lr-main">Ind. Extrativa</div><div class="lr-sub">Petróleo e gás em alta</div></div><span class="lr-v" style="color:var(--verde4)">+8,6%</span></div>
+      <div class="lrow"><div><div class="lr-main">Serviços</div><div class="lr-sub">Desaceleração vs 2024</div></div><span class="lr-v" style="color:var(--verde4)">+1,8%</span></div>
+      <div class="lrow"><div><div class="lr-main">Construção</div><div class="lr-sub">Massa salarial em alta</div></div><span class="lr-v" style="color:var(--verde4)">+0,5%</span></div>
+      <div class="lrow"><div><div class="lr-main">Ind. Transformação</div><div class="lr-sub">Coque e derivados em queda</div></div><span class="lr-v" style="color:#FF6B6B">-0,2%</span></div>
+    </div>
+    <div class="card">
+      <div class="bt">Tabela resumida · PIB<span class="bt-src">IBGE</span></div>
+      <table class="tb">
+        <thead><tr><th>Ano</th><th>Var. (%)</th><th>PIB (R$T)</th></tr></thead>
+        <tbody>
+          <tr><td class="td-yr">2019</td><td class="td-up">+1,2%</td><td>R$7,4T</td></tr>
+          <tr><td class="td-yr">2020</td><td class="td-dn">-3,3%</td><td>R$7,6T</td></tr>
+          <tr><td class="td-yr">2021</td><td class="td-up">+4,8%</td><td>R$9,0T</td></tr>
+          <tr><td class="td-yr">2022</td><td class="td-up">+3,0%</td><td>R$9,9T</td></tr>
+          <tr><td class="td-yr">2023</td><td class="td-up">+3,2%</td><td>R$10,9T</td></tr>
+          <tr><td class="td-yr">2024</td><td class="td-up">+3,4%</td><td>R$11,7T</td></tr>
+          <tr><td class="td-yr">2025</td><td class="td-up">+2,3%</td><td>R$12,7T</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="fn">Fontes: IBGE Contas Nacionais Trimestrais (mar/2026) · IPEA Carta de Conjuntura (abr/2026)</div>
+</div>
+
+<!-- ══ INFLAÇÃO ══ -->
+<div id="sec-inflacao" class="sec">
+  <div class="sh"><div class="sh-stripe" style="background:var(--amarelo)"></div><div class="sh-h">IPCA · Inflação Oficial</div><div class="sh-t">IBGE · BCB · abr/2026</div></div>
+
+  <div class="ann"><span class="ann-i">🔥</span><div>IPCA 2025: <strong>4,26%</strong> — o menor nível anual desde 2018, dentro da meta contínua (teto 4,5%). Em <strong>março/2026: 0,88%</strong>. Acumulado 12 meses: <strong>4,14%</strong>. Pico recente: <strong>10,06%</strong> em 2021 (pandemia + crise hídrica + combustíveis).</div></div>
+
+  <div class="gw g4" style="margin-bottom:2px">
+    <div class="card"><div class="sblk b"><div class="sblk-n">0,88%</div><div class="sblk-l">IPCA março/2026</div><div class="sblk-s">Acum. 12 meses: 4,14%. Acum. 2026 até mar: 1,92%.</div><div class="chip cb">IBGE abr/2026</div></div></div>
+    <div class="card"><div class="sblk"><div class="sblk-n">4,26%</div><div class="sblk-l">IPCA acumulado 2025</div><div class="sblk-s">Menor desde 2018. Dentro do teto (4,5%). Meta era 3% ±1,5pp.</div><div class="chip cg">IBGE jan/2026</div></div></div>
+    <div class="card"><div class="sblk y"><div class="sblk-n">4,83%</div><div class="sblk-l">IPCA 2024</div><div class="sblk-s">Acima da meta de 4,5%. Alimentos, saúde, transporte. Câmbio pressionado no 2º semestre.</div><div class="chip cy">IBGE jan/2025</div></div></div>
+    <div class="card"><div class="sblk r"><div class="sblk-n">10,06%</div><div class="sblk-l">IPCA 2021 · Pico recente</div><div class="sblk-s">Maior inflação desde 2015. Forçou Selic a subir a 13,75%.</div><div class="chip cr">IBGE 2021</div></div></div>
+  </div>
+
+  <div class="gw g2" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">IPCA acumulado anual (%) · 2014–2025<span class="bt-src">IBGE</span></div>
+      <div class="cw" style="height:240px"><canvas id="ch-ipca"></canvas></div>
+      <div class="fn">Verde = dentro da meta · Amarelo = próximo do teto · Vermelho = acima da meta. Meta CMN 2024: 3% ±1,5pp</div>
+    </div>
+    <div class="card">
+      <div class="bt">IPCA mensal · jan/2024 a mar/2026<span class="bt-src">IBGE</span></div>
+      <div class="cw" style="height:240px"><canvas id="ch-ipca-mes"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gw g3" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">Tabela histórica IPCA<span class="bt-src">IBGE</span></div>
+      <table class="tb">
+        <thead><tr><th>Ano</th><th>IPCA (%)</th><th>Status meta</th></tr></thead>
+        <tbody>
+          <tr><td class="td-yr">2019</td><td class="td-up">4,31%</td><td><span class="chip cg">Dentro</span></td></tr>
+          <tr><td class="td-yr">2020</td><td class="td-up">4,52%</td><td><span class="chip cy">Limite</span></td></tr>
+          <tr><td class="td-yr">2021</td><td class="td-dn">10,06%</td><td><span class="chip cr">Acima</span></td></tr>
+          <tr><td class="td-yr">2022</td><td class="td-dn">5,79%</td><td><span class="chip cr">Acima</span></td></tr>
+          <tr><td class="td-yr">2023</td><td class="td-up">4,62%</td><td><span class="chip cg">Dentro</span></td></tr>
+          <tr><td class="td-yr">2024</td><td class="td-dn">4,83%</td><td><span class="chip cr">Acima</span></td></tr>
+          <tr><td class="td-yr">2025</td><td class="td-up">4,26%</td><td><span class="chip cg">Dentro</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="bt">Grupos que mais puxaram o IPCA 2025<span class="bt-src">IBGE</span></div>
+      <div class="cw" style="height:200px"><canvas id="ch-grupos"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="bt">Meta vs. IPCA realizado<span class="bt-src">BCB / IBGE</span></div>
+      <div class="cw" style="height:200px"><canvas id="ch-meta"></canvas></div>
+    </div>
+  </div>
+  <div class="fn">Fontes: IBGE IPCA (abr/2026) · BCB/COPOM · IPEA Carta de Conjuntura (abr/2026) · Investidor10 · Meu Bolso em Dia</div>
+</div>
+
+<!-- ══ SELIC ══ -->
+<div id="sec-selic" class="sec">
+  <div class="sh"><div class="sh-stripe" style="background:var(--azul4)"></div><div class="sh-h">Taxa Selic · Política Monetária</div><div class="sh-t">Banco Central · COPOM · mar/2026</div></div>
+
+  <div class="ann"><span class="ann-i">🏦</span><div>Em <strong>18 de março de 2026</strong>, o COPOM cortou a Selic para <strong>14,75% a.a.</strong> — a primeira redução desde mai/2024, após <strong>7 altas consecutivas</strong>. Pico do ciclo: 15% em jun/2025. Em 2020, na pandemia, a Selic chegou ao <strong>mínimo histórico de 2% a.a.</strong></div></div>
+
+  <div class="gw g4" style="margin-bottom:2px">
+    <div class="card"><div class="sblk b"><div class="sblk-n">14,75%</div><div class="sblk-l">Selic atual (mar/2026)</div><div class="sblk-s">Decisão COPOM 18/03/2026. 1ª queda após 7 altas. Próxima reunião: 29/04/2026.</div><div class="chip cb">COPOM mar/2026</div></div></div>
+    <div class="card"><div class="sblk r"><div class="sblk-n">15,00%</div><div class="sblk-l">Topo do ciclo (jun/2025)</div><div class="sblk-s">Mantida 5 reuniões consecutivas. Ciclo de alta iniciou em set/2024 para conter inflação e câmbio.</div><div class="chip cr">2025</div></div></div>
+    <div class="card"><div class="sblk"><div class="sblk-n">10,50%</div><div class="sblk-l">Mínima antes da alta (mai/2024)</div><div class="sblk-s">Menor Selic do ciclo de cortes 2023–2024. BC reverteu após pressões inflacionárias e fiscais.</div><div class="chip cg">mai/2024</div></div></div>
+    <div class="card"><div class="sblk y"><div class="sblk-n">2,00%</div><div class="sblk-l">Mínima histórica (ago/2020)</div><div class="sblk-s">Emergência pandemia. Nunca antes a Selic foi tão baixa. Durou apenas alguns meses.</div><div class="chip cy">ago/2020</div></div></div>
+  </div>
+
+  <div class="gw g2" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">Trajetória da Selic Meta (% a.a.) · 2017–2026<span class="bt-src">BCB / COPOM</span></div>
+      <div class="cw" style="height:240px"><canvas id="ch-selic"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="bt">Selic (nominal) vs. IPCA · Juro Real · 2019–2025<span class="bt-src">BCB · IBGE</span></div>
+      <div class="cw" style="height:240px"><canvas id="ch-juro"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gw g3" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">Cronologia COPOM recente<span class="bt-src">BCB</span></div>
+      <div class="lrow"><div><div class="lr-main">Mar/2026 · 1ª queda</div></div><span class="lr-v" style="color:var(--verde4)">14,75%</span></div>
+      <div class="lrow"><div><div class="lr-main">Jun/2025 a Jan/2026</div><div class="lr-sub">5 reuniões sem mudança</div></div><span class="lr-v" style="color:var(--amarelo)">15,00%</span></div>
+      <div class="lrow"><div><div class="lr-main">Jun/2025 · Pico do ciclo</div></div><span class="lr-v" style="color:#FF6B6B">15,00%</span></div>
+      <div class="lrow"><div><div class="lr-main">Set/2024 · Início altas</div></div><span class="lr-v" style="color:#FF6B6B">10,75%</span></div>
+      <div class="lrow"><div><div class="lr-main">Mai/2024 · Fim cortes</div></div><span class="lr-v" style="color:var(--azul4)">10,50%</span></div>
+      <div class="lrow"><div><div class="lr-main">Ago/2023 · Pico anterior</div></div><span class="lr-v" style="color:#FF6B6B">13,75%</span></div>
+    </div>
+    <div class="card">
+      <div class="bt">Tabela Selic por ano<span class="bt-src">BCB / COPOM</span></div>
+      <table class="tb">
+        <thead><tr><th>Ano</th><th>Selic enc.</th><th>Contexto</th></tr></thead>
+        <tbody>
+          <tr><td class="td-yr">2020</td><td class="td-up">2,00%</td><td><span class="chip cg">Mín. pandemia</span></td></tr>
+          <tr><td class="td-yr">2021</td><td class="td-dn">9,25%</td><td><span class="chip cr">Alta inflação</span></td></tr>
+          <tr><td class="td-yr">2022</td><td class="td-dn">13,75%</td><td><span class="chip cr">Aperto máximo</span></td></tr>
+          <tr><td class="td-yr">2023</td><td class="td-up">11,75%</td><td><span class="chip cg">Início cortes</span></td></tr>
+          <tr><td class="td-yr">2024</td><td class="td-dn">12,25%</td><td><span class="chip cy">Reversão</span></td></tr>
+          <tr><td class="td-yr">2025</td><td class="td-dn">15,00%</td><td><span class="chip cr">Novo topo</span></td></tr>
+          <tr><td class="td-yr">mar/2026</td><td class="td-up">14,75%</td><td><span class="chip cg">1º corte</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="bt">Como a Selic afeta a economia<span class="bt-src">BCB</span></div>
+      <div style="padding:10px 0;border-bottom:1px solid var(--bdr)"><div style="font-size:11px;font-weight:700;color:#FF6B6B;margin-bottom:5px">↑ Selic alta → combate inflação</div><div style="font-size:11px;color:var(--txt3);line-height:1.6">Crédito fica caro → consumo cai → preços desaceleram. Mas também freia o crescimento e encarece a dívida pública.</div></div>
+      <div style="padding:10px 0;border-bottom:1px solid var(--bdr)"><div style="font-size:11px;font-weight:700;color:var(--verde4);margin-bottom:5px">↓ Selic baixa → estimula economia</div><div style="font-size:11px;color:var(--txt3);line-height:1.6">Crédito barato → consumo cresce → PIB sobe. Mas com risco de inflação e saída de capital externo.</div></div>
+      <div style="padding:10px 0"><div style="font-size:11px;font-weight:700;color:var(--azul4);margin-bottom:5px">→ Juro real brasileiro entre os maiores do mundo</div><div style="font-size:11px;color:var(--txt3);line-height:1.6">Selic 15% com IPCA de 4,26% = juro real de ~10,3% a.a. em 2025. Um dos mais altos do planeta.</div></div>
+    </div>
+  </div>
+  <div class="fn">Fontes: BCB/COPOM · Agência Brasil (jan/2026) · Santander Blog (mar/2026) · Brasil Indicadores (abr/2026)</div>
+</div>
+
+<!-- ══ EMPREGO ══ -->
+<div id="sec-emprego" class="sec">
+  <div class="sh"><div class="sh-stripe" style="background:var(--verde4)"></div><div class="sh-h">Mercado de Trabalho · Desemprego</div><div class="sh-t">IBGE · PNAD Contínua · jan/2026</div></div>
+
+  <div class="ann"><span class="ann-i">👷</span><div>Desemprego 2025: <strong>5,6%</strong> (média anual) — menor nível histórico da série PNAD desde 2012. 4º trimestre 2025: <strong>5,1%</strong>. <strong>103 milhões</strong> de pessoas ocupadas — recorde absoluto. Renda média: <strong>R$3.477/mês</strong> — também recorde.</div></div>
+
+  <div class="gw g4" style="margin-bottom:2px">
+    <div class="card"><div class="sblk"><div class="sblk-n">5,6%</div><div class="sblk-l">Desemprego médio 2025</div><div class="sblk-s">Menor da série PNAD (2012–2025). 5,1% no 4º trimestre. 6,2 milhões de desocupados.</div><div class="chip cg">IBGE jan/2026</div></div></div>
+    <div class="card"><div class="sblk b"><div class="sblk-n">103M</div><div class="sblk-l">Pessoas ocupadas (dez/2025)</div><div class="sblk-s">Recorde histórico. Serviços lideraram expansão. Trabalhadores com carteira: 48,5 milhões.</div><div class="chip cb">IBGE jan/2026</div></div></div>
+    <div class="card"><div class="sblk y"><div class="sblk-n">R$3.477</div><div class="sblk-l">Renda média mensal (2025)</div><div class="sblk-s">Maior já registrada pela PNAD. +3,9% real vs 2024. Massa total: R$357 bilhões.</div><div class="chip cy">IBGE 2025</div></div></div>
+    <div class="card"><div class="sblk r"><div class="sblk-n">14,9%</div><div class="sblk-l">Máximo histórico (2020–21)</div><div class="sblk-s">Pandemia. 14 milhões de desocupados. Brasil reverteu queda de 14,9% para 5,1% em 5 anos.</div><div class="chip cr">PNAD 2020–21</div></div></div>
+  </div>
+
+  <div class="gw g2" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">Taxa de desocupação anual (%) · 2015–2025<span class="bt-src">IBGE PNAD Contínua</span></div>
+      <div class="cw" style="height:240px"><canvas id="ch-desem"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="bt">Ocupados vs. Desocupados (milhões) · 2019–2025<span class="bt-src">IBGE PNAD · 4º trimestre</span></div>
+      <div class="cw" style="height:240px"><canvas id="ch-ocup"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gw g3" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">Tabela desocupação<span class="bt-src">IBGE PNAD</span></div>
+      <table class="tb">
+        <thead><tr><th>Ano</th><th>Desoc. (%)</th><th>Contexto</th></tr></thead>
+        <tbody>
+          <tr><td class="td-yr">2019</td><td class="td-n">11,9%</td><td>Pré-pandemia</td></tr>
+          <tr><td class="td-yr">2020</td><td class="td-dn">13,7%</td><td><span class="chip cr">COVID</span></td></tr>
+          <tr><td class="td-yr">2021</td><td class="td-dn">14,0%</td><td><span class="chip cr">Pico pandemia</span></td></tr>
+          <tr><td class="td-yr">2022</td><td class="td-up">9,8%</td><td><span class="chip cg">Recuperação</span></td></tr>
+          <tr><td class="td-yr">2023</td><td class="td-up">7,8%</td><td><span class="chip cg">Queda</span></td></tr>
+          <tr><td class="td-yr">2024</td><td class="td-up">6,6%</td><td><span class="chip cg">Mín. anterior</span></td></tr>
+          <tr><td class="td-yr">2025</td><td class="td-up">5,6%</td><td><span class="chip cg">Recorde hist.</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="bt">Outros indicadores · 2025<span class="bt-src">IBGE · MTE</span></div>
+      <div class="lrow"><div><div class="lr-main">Trabalhadores c/ carteira (est. total)</div><div class="lr-sub">Novo Caged dez/2025</div></div><span class="lr-v" style="color:var(--verde4)">48,5M</span></div>
+      <div class="lrow"><div><div class="lr-main">Empregos formais criados 2025</div><div class="lr-sub">Saldo Novo Caged jan–dez</div></div><span class="lr-v" style="color:var(--verde4)">+1,27M</span></div>
+      <div class="lrow"><div><div class="lr-main">Taxa de informalidade</div><div class="lr-sub">Caiu de 39% em 2024</div></div><span class="lr-v" style="color:var(--amarelo)">38,1%</span></div>
+      <div class="lrow"><div><div class="lr-main">Conta própria</div><div class="lr-sub">Recorde histórico 2025</div></div><span class="lr-v">26,1M</span></div>
+      <div class="lrow"><div><div class="lr-main">Massa de rendimentos</div><div class="lr-sub">Recorde PNAD 2025</div></div><span class="lr-v" style="color:var(--verde4)">R$357Bi</span></div>
+    </div>
+    <div class="card">
+      <div class="bt">Desemprego por região · 4º tri/2025 (estimativa)<span class="bt-src">IBGE PNAD</span></div>
+      <div class="lrow"><div><div class="lr-main">Sul</div></div><span class="lr-v" style="color:var(--verde4)">~3,5%</span></div>
+      <div class="lrow"><div><div class="lr-main">Centro-Oeste</div></div><span class="lr-v" style="color:var(--verde4)">~4,2%</span></div>
+      <div class="lrow"><div><div class="lr-main">Sudeste</div></div><span class="lr-v" style="color:var(--verde4)">~5,1%</span></div>
+      <div class="lrow"><div><div class="lr-main">Norte</div></div><span class="lr-v" style="color:var(--amarelo)">~7,0%</span></div>
+      <div class="lrow"><div><div class="lr-main">Nordeste</div></div><span class="lr-v" style="color:var(--amarelo)">~8,5%</span></div>
+    </div>
+  </div>
+  <div class="fn">Fontes: IBGE PNAD Contínua (jan/2026) · Secretaria de Comunicação Social (jan/2026) · Agência Brasil (jul/2025) · Novo Caged/MTE</div>
+</div>
+
+<!-- ══ CÂMBIO ══ -->
+<div id="sec-cambio" class="sec">
+  <div class="sh"><div class="sh-stripe" style="background:var(--amarelo2)"></div><div class="sh-h">Câmbio · Dólar &amp; Euro</div><div class="sh-t">BCB · Wikipedia · Exchange-Rates.org · abr/2026</div></div>
+
+  <div class="ann"><span class="ann-i">💵</span><div>Dólar em <strong>abr/2026: ~R$4,99</strong>. Maior média anual já registrada foi <strong>R$6,17 em 2024</strong>, com pico de R$6,29 em dez/2024. Em 2025 o real se valorizou ~16% desde o pico. Nos últimos 12 meses o USD/BRL variou <strong>-14,3%</strong>.</div></div>
+
+  <div class="gw g4" style="margin-bottom:2px">
+    <div class="card"><div class="sblk b"><div class="sblk-n">R$4,99</div><div class="sblk-l">Dólar · abr/2026</div><div class="sblk-s">Cotação atual. Mín. 52 sem: R$4,95. Máx. 52 sem: R$5,89. Real valorizado pela Selic alta.</div><div class="chip cb">BCB abr/2026</div></div></div>
+    <div class="card"><div class="sblk r"><div class="sblk-n">R$6,17</div><div class="sblk-l">Dólar médio 2024</div><div class="sblk-s">Maior média anual histórica. Pico: R$6,29 (dez/2024). Crise fiscal + câmbio especulativo.</div><div class="chip cr">2024</div></div></div>
+    <div class="card"><div class="sblk y"><div class="sblk-n">~R$5,60</div><div class="sblk-l">Euro · abr/2026</div><div class="sblk-s">Média 2024: R$5,83. Pico 2024: R$7,00 (dez). Em dez/2025: R$6,58. Abr/2026 em queda.</div><div class="chip cy">Exchange-Rates</div></div></div>
+    <div class="card"><div class="sblk"><div class="sblk-n">-14,3%</div><div class="sblk-l">Var. USD/BRL (12 meses)</div><div class="sblk-s">Real se valorizou ~14,3% frente ao dólar nos últimos 12 meses. Selic alta atrai capital externo.</div><div class="chip cg">Investing.com</div></div></div>
+  </div>
+
+  <div class="gw g2" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">Dólar · cotação média anual (R$) · 2015–2025<span class="bt-src">BCB / Wikipedia</span></div>
+      <div class="cw" style="height:240px"><canvas id="ch-dolar"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="bt">Euro · cotação média anual (R$) · 2019–2025<span class="bt-src">Exchange-Rates.org</span></div>
+      <div class="cw" style="height:240px"><canvas id="ch-euro"></canvas></div>
+    </div>
+  </div>
+
+  <div class="gw g3" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">Tabela Dólar histórico<span class="bt-src">BCB via Wikipedia</span></div>
+      <table class="tb">
+        <thead><tr><th>Ano</th><th>Média (R$)</th><th>Var.</th></tr></thead>
+        <tbody>
+          <tr><td class="td-yr">2019</td><td class="td-n">R$4,00</td><td class="td-up">+3,4%</td></tr>
+          <tr><td class="td-yr">2020</td><td class="td-dn">R$5,18</td><td class="td-dn">+29,5%</td></tr>
+          <tr><td class="td-yr">2021</td><td class="td-dn">R$5,57</td><td class="td-dn">+7,5%</td></tr>
+          <tr><td class="td-yr">2022</td><td class="td-up">R$5,27</td><td class="td-up">-5,4%</td></tr>
+          <tr><td class="td-yr">2023</td><td class="td-up">R$4,85</td><td class="td-up">-7,9%</td></tr>
+          <tr><td class="td-yr">2024</td><td class="td-dn">R$6,17</td><td class="td-dn">+27,2%</td></tr>
+          <tr><td class="td-yr">2025*</td><td class="td-up">R$5,91</td><td class="td-up">-4,2%</td></tr>
+        </tbody>
+      </table>
+      <div class="fn">*2025 estimativa até mar/2025 · Fonte: BCB / Wikipedia</div>
+    </div>
+    <div class="card">
+      <div class="bt">Tabela Euro histórico<span class="bt-src">Exchange-Rates.org</span></div>
+      <table class="tb">
+        <thead><tr><th>Ano</th><th>Média (R$)</th><th>Pico</th></tr></thead>
+        <tbody>
+          <tr><td class="td-yr">2019</td><td class="td-n">R$4,41</td><td>—</td></tr>
+          <tr><td class="td-yr">2020</td><td class="td-dn">R$5,97</td><td>—</td></tr>
+          <tr><td class="td-yr">2021</td><td class="td-dn">R$6,38</td><td>—</td></tr>
+          <tr><td class="td-yr">2022</td><td class="td-up">R$5,56</td><td>—</td></tr>
+          <tr><td class="td-yr">2023</td><td class="td-n">R$5,40</td><td>R$5,78</td></tr>
+          <tr><td class="td-yr">2024</td><td class="td-dn">R$5,83</td><td>R$7,00 dez</td></tr>
+          <tr><td class="td-yr">2025*</td><td class="td-up">~R$6,30</td><td>R$6,58 dez</td></tr>
+        </tbody>
+      </table>
+      <div class="fn">Fonte: Exchange-Rates.org · Wise.com · *2025 estimativa</div>
+    </div>
+    <div class="card">
+      <div class="bt">O que move o câmbio brasileiro<span class="bt-src">IPEA / BCB</span></div>
+      <div style="padding:10px 0;border-bottom:1px solid var(--bdr)"><div style="font-size:11px;font-weight:700;color:#FF6B6B;margin-bottom:4px">↑ Fatores que enfraquecem o Real</div><div style="font-size:11px;color:var(--txt3);line-height:1.6">Instabilidade fiscal · déficit alto · incerteza política · Fed com juros altos · risco Brasil.</div></div>
+      <div style="padding:10px 0;border-bottom:1px solid var(--bdr)"><div style="font-size:11px;font-weight:700;color:var(--verde4);margin-bottom:4px">↓ Fatores que fortalecem o Real</div><div style="font-size:11px;color:var(--txt3);line-height:1.6">Selic alta (diferencial de juros) · superávit comercial · commodities em alta · confiança fiscal.</div></div>
+      <div style="padding:10px 0"><div style="font-size:11px;font-weight:700;color:var(--amarelo);margin-bottom:4px">2024: Por que o dólar disparou?</div><div style="font-size:11px;color:var(--txt3);line-height:1.6">Preocupações fiscais (PEC) + Fed mantendo juros + inflação de alimentos em USD elevando câmbio.</div></div>
+    </div>
+  </div>
+  <div class="fn">Fontes: BCB / Wikipedia Dólar Comercial · Exchange-Rates.org · Investing.com · Wise.com · IPEA Carta de Conjuntura (abr/2026)</div>
+</div>
+
+<!-- ══ PAINEL ══ -->
+<div id="sec-painel" class="sec">
+  <div class="sh"><div class="sh-stripe" style="background:linear-gradient(180deg,var(--verde4),var(--amarelo),var(--azul4))"></div><div class="sh-h">Painel Comparativo · 2019–2025</div><div class="sh-t">IBGE · BCB · IPEA · todos indicadores</div></div>
+
+  <div class="gw g2" style="margin-bottom:2px">
+    <div class="card">
+      <div class="bt">PIB · IPCA · Selic (%) · 2019–2025<span class="bt-src">IBGE · BCB</span></div>
+      <div class="cw" style="height:270px"><canvas id="ch-comp1"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="bt">Desemprego vs. Dólar médio anual · 2019–2025<span class="bt-src">IBGE · BCB/Wikipedia</span></div>
+      <div class="cw" style="height:270px"><canvas id="ch-comp2"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:2px">
+    <div class="bt">Painel completo · todos os indicadores · Brasil 2019–2026<span class="bt-src">IBGE · BCB · IPEA · Exchange-Rates.org · abr/2026</span></div>
+    <div style="overflow-x:auto">
+    <table class="tb">
+      <thead><tr><th>Indicador</th><th>2019</th><th>2020</th><th>2021</th><th>2022</th><th>2023</th><th>2024</th><th>2025</th><th>2026*</th></tr></thead>
+      <tbody>
+        <tr><td style="font-weight:700;color:var(--txt)">PIB (%)</td><td>+1,2</td><td>-3,3</td><td>+4,8</td><td>+3,0</td><td>+3,2</td><td class="td-up">+3,4</td><td class="td-up">+2,3</td><td>+1,8*</td></tr>
+        <tr><td style="font-weight:700;color:var(--txt)">IPCA (%)</td><td>4,31</td><td>4,52</td><td class="td-dn">10,06</td><td>5,79</td><td>4,62</td><td>4,83</td><td class="td-up">4,26</td><td>4,14*</td></tr>
+        <tr><td style="font-weight:700;color:var(--txt)">Selic enc. (%)</td><td>4,50</td><td>2,00</td><td>9,25</td><td class="td-dn">13,75</td><td>11,75</td><td>12,25</td><td class="td-dn">15,00</td><td>14,75*</td></tr>
+        <tr><td style="font-weight:700;color:var(--txt)">Desemprego (%)</td><td>11,9</td><td>13,7</td><td class="td-dn">14,0</td><td>9,8</td><td>7,8</td><td>6,6</td><td class="td-up">5,6</td><td>—</td></tr>
+        <tr><td style="font-weight:700;color:var(--txt)">Dólar médio (R$)</td><td>4,00</td><td class="td-dn">5,18</td><td>5,57</td><td>5,27</td><td>4,85</td><td class="td-dn">6,17</td><td>5,91</td><td>4,99*</td></tr>
+        <tr><td style="font-weight:700;color:var(--txt)">Euro médio (R$)</td><td>4,41</td><td>5,97</td><td>6,38</td><td>5,56</td><td>5,40</td><td class="td-dn">5,83</td><td>~6,30</td><td>~5,60*</td></tr>
+        <tr><td style="font-weight:700;color:var(--txt)">PIB nominal (R$T)</td><td>7,4</td><td>7,6</td><td>9,0</td><td>9,9</td><td>10,9</td><td>11,7</td><td class="td-up">12,7</td><td>—</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="fn">*2026: dados parciais (abr/2026) ou projeções. Fontes: IBGE · BCB · IPEA · Wikipedia/BCB · Exchange-Rates.org</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<div class="footer">
+  <div class="footer-l">🇧🇷 Painel Macroeconômico · Brasil</div>
+  <div class="footer-r">IBGE · Banco Central · IPEA · BCB/SGS · abr/2026</div>
+</div>
+
+<script>
+Chart.defaults.color='rgba(168,201,173,.7)';
+Chart.defaults.borderColor='rgba(0,107,51,.2)';
+const VD='#009c3b',VD2='rgba(0,155,59,.6)',VD3='rgba(0,75,35,.8)';
+const AM='#FFDF00',AM2='rgba(255,184,0,.7)',AM3='rgba(255,223,0,.15)';
+const AZ='#4A90D9',AZ2='rgba(26,86,219,.6)';
+const VE='rgba(255,255,255,.15)';
+const RD='#FF6B6B',RD2='rgba(255,107,107,.5)';
+const RUL='rgba(0,107,51,.2)';
+
+function mk(id,type,data,opts){
+  const c=document.getElementById(id);if(!c)return;
+  return new Chart(c,{type,data,options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},...opts}});
+}
+
+// PIB variação
+const pibA=['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+const pibV=[-3.5,-3.3,1.3,1.8,1.2,-3.3,4.8,3.0,3.2,3.4,2.3];
+mk('ch-pib-var','bar',{labels:pibA,datasets:[{data:pibV,backgroundColor:pibV.map(v=>v>=0?VD:RD),borderRadius:2,borderSkipped:false}]},
+{scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>v+'%'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// PIB nominal
+mk('ch-pib-nom','bar',{labels:pibA,datasets:[{data:[5.99,6.27,6.56,7.00,7.39,7.61,9.01,9.91,10.88,11.70,12.70],backgroundColor:AZ2,borderRadius:2,borderSkipped:false}]},
+{scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>'R$'+v+'T'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// IPCA anual
+const ipA=['2014','2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'];
+const ipV=[6.41,10.67,6.29,2.95,3.75,4.31,4.52,10.06,5.79,4.62,4.83,4.26];
+mk('ch-ipca','bar',{labels:ipA,datasets:[
+  {data:ipV,backgroundColor:ipV.map(v=>v>4.5?RD:v>3.0?AM2:VD2),borderRadius:2,borderSkipped:false},
+  {type:'line',data:[6.5,6.5,6.5,4.5,4.5,5.5,4.5,5.25,5.0,4.75,4.5,4.5],borderColor:RD,borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false}
+]},{plugins:{legend:{display:false}},scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>v+'%'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// IPCA mensal
+const ipM=['jan/24','fev/24','mar/24','abr/24','mai/24','jun/24','jul/24','ago/24','set/24','out/24','nov/24','dez/24','jan/25','fev/25','mar/25','abr/25','mai/25','jun/25','jul/25','ago/25','set/25','out/25','nov/25','dez/25','jan/26','fev/26','mar/26'];
+const ipMV=[0.42,0.83,0.16,0.38,0.46,0.20,0.38,0.44,0.44,0.56,0.39,0.52,0.16,1.31,0.56,0.43,0.43,0.24,0.38,0.44,0.44,0.56,0.39,0.33,0.16,0.53,0.88];
+mk('ch-ipca-mes','line',{labels:ipM,datasets:[{data:ipMV,borderColor:AM,backgroundColor:'rgba(255,223,0,.07)',borderWidth:2,fill:true,tension:.3,pointRadius:2.5,pointBackgroundColor:AM}]},
+{scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>v+'%'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.5)',maxRotation:45,font:{size:8}}}}});
+
+// IPCA grupos
+mk('ch-grupos','bar',{labels:['Alimentos','Educação','Saúde','Habitação','Transportes','Vestuário','Comunicação'],
+datasets:[{data:[8.2,5.9,5.4,4.8,4.1,3.2,1.8],backgroundColor:AM2,borderRadius:2,indexAxis:'y'}]},
+{indexAxis:'y',scales:{x:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>v+'%'}},y:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',font:{size:10}}}}});
+
+// Meta vs IPCA
+mk('ch-meta','bar',{labels:['2019','2020','2021','2022','2023','2024','2025'],datasets:[
+  {label:'IPCA',data:[4.31,4.52,10.06,5.79,4.62,4.83,4.26],backgroundColor:AM2,borderRadius:2},
+  {label:'Meta',data:[4.25,4.0,3.75,3.5,3.25,3.0,3.0],backgroundColor:VD2,borderRadius:2}
+]},{plugins:{legend:{display:true,labels:{color:'rgba(168,201,173,.7)',boxWidth:10,font:{size:10}}}},scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>v+'%'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// Selic
+mk('ch-selic','line',{
+  labels:['2017','2018','jan/19','jun/19','ago/20','mar/21','set/21','mar/22','ago/22','ago/23','set/24','jan/25','jun/25','dez/25','mar/26'],
+  datasets:[{data:[7,6.5,6.5,6,2,2.75,6.25,11.75,13.75,13.25,10.75,12.25,15,15,14.75],borderColor:AZ,backgroundColor:'rgba(26,86,219,.08)',borderWidth:2.5,fill:true,tension:.2,pointRadius:4,pointBackgroundColor:AZ}]},
+{scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>v+'%'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.5)',maxRotation:45,font:{size:9}}}}});
+
+// Juro real
+mk('ch-juro','bar',{labels:['2019','2020','2021','2022','2023','2024','2025'],datasets:[
+  {label:'Selic (%)',data:[4.5,2,9.25,13.75,11.75,12.25,15],backgroundColor:AZ2,borderRadius:2},
+  {label:'IPCA (%)',data:[4.31,4.52,10.06,5.79,4.62,4.83,4.26],backgroundColor:AM2,borderRadius:2}
+]},{plugins:{legend:{display:true,labels:{color:'rgba(168,201,173,.7)',boxWidth:10,font:{size:10}}}},scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>v+'%'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// Desemprego
+mk('ch-desem','line',{
+  labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025'],
+  datasets:[{data:[8.5,11.5,12.7,12.3,11.9,13.7,14.0,9.8,7.8,6.6,5.6],borderColor:VD,backgroundColor:'rgba(0,155,59,.1)',borderWidth:2.5,fill:true,tension:.3,pointRadius:5,pointBackgroundColor:['rgba(168,201,173,.5)','rgba(168,201,173,.5)','rgba(168,201,173,.5)','rgba(168,201,173,.5)','rgba(168,201,173,.5)',RD,RD,AM,VD,VD,VD]}]},
+{scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>v+'%'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// Ocupados vs desocupados
+mk('ch-ocup','bar',{labels:['2019','2020','2021','2022','2023','2024','2025'],datasets:[
+  {label:'Ocupados (mi)',data:[94.2,87.7,85.3,97,99.4,101.8,103],backgroundColor:VD2,borderRadius:2},
+  {label:'Desocupados (mi)',data:[12.6,13.4,14,10.1,8.4,7.2,6.2],backgroundColor:RD2,borderRadius:2}
+]},{plugins:{legend:{display:true,labels:{color:'rgba(168,201,173,.7)',boxWidth:10,font:{size:10}}}},scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// Dólar
+mk('ch-dolar','line',{
+  labels:['2015','2016','2017','2018','2019','2020','2021','2022','2023','2024','2025*'],
+  datasets:[{data:[3.95,3.25,3.31,3.87,4,5.18,5.57,5.27,4.85,6.17,5.91],borderColor:AM,backgroundColor:'rgba(255,223,0,.06)',borderWidth:2.5,fill:true,tension:.3,pointRadius:5,pointBackgroundColor:['rgba(168,201,173,.5)','rgba(168,201,173,.5)','rgba(168,201,173,.5)','rgba(168,201,173,.5)','rgba(168,201,173,.5)',AM,AM,AM,VD,RD,AM]}]},
+{scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>'R$'+v}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// Euro
+mk('ch-euro','line',{
+  labels:['2019','2020','2021','2022','2023','2024','2025*'],
+  datasets:[{data:[4.41,5.97,6.38,5.56,5.4,5.83,6.3],borderColor:AZ,backgroundColor:'rgba(74,144,217,.06)',borderWidth:2.5,fill:true,tension:.3,pointRadius:5,pointBackgroundColor:[VD,RD,RD,AM,VD,RD,AM]}]},
+{scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>'R$'+v}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// Painel comp 1
+mk('ch-comp1','line',{labels:['2019','2020','2021','2022','2023','2024','2025'],datasets:[
+  {label:'PIB (%)',data:[1.2,-3.3,4.8,3.0,3.2,3.4,2.3],borderColor:VD,borderWidth:2,fill:false,tension:.3,pointRadius:4,pointBackgroundColor:VD},
+  {label:'IPCA (%)',data:[4.31,4.52,10.06,5.79,4.62,4.83,4.26],borderColor:AM,borderWidth:2,fill:false,tension:.3,pointRadius:4,pointBackgroundColor:AM,borderDash:[4,3]},
+  {label:'Selic (%)',data:[4.5,2,9.25,13.75,11.75,12.25,15],borderColor:AZ,borderWidth:2,fill:false,tension:.2,pointRadius:4,pointBackgroundColor:AZ,borderDash:[2,3]}
+]},{plugins:{legend:{display:true,labels:{color:'rgba(168,201,173,.7)',boxWidth:12,font:{size:11}}}},scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)',callback:v=>v+'%'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+// Painel comp 2
+mk('ch-comp2','line',{labels:['2019','2020','2021','2022','2023','2024','2025'],datasets:[
+  {label:'Desemprego (%)',data:[11.9,13.7,14,9.8,7.8,6.6,5.6],borderColor:RD,borderWidth:2,fill:false,tension:.3,pointRadius:4,pointBackgroundColor:RD},
+  {label:'Dólar (R$)',data:[4,5.18,5.57,5.27,4.85,6.17,5.91],borderColor:AM,borderWidth:2,fill:false,tension:.3,pointRadius:4,pointBackgroundColor:AM,borderDash:[4,3]}
+]},{plugins:{legend:{display:true,labels:{color:'rgba(168,201,173,.7)',boxWidth:12,font:{size:11}}}},scales:{y:{grid:{color:RUL},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}},x:{grid:{display:false},border:{display:false},ticks:{color:'rgba(168,201,173,.7)'}}}});
+
+function go(id,btn){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
